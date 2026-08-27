@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Timeflow Automation Suite" verbose="1">
+    
+    <listeners>
+        <listener class-name="com.timeflow.listeners.TestListener" />
+    </listeners>
+
+    <test name="Role-Based Login &amp; Security Tests">
+        <classes>
+            <class name="com.timeflow.tests.TimeflowLoginTest" />
+        </classes>
+    </test>
+
+    <test name="Employee Authentication &amp; Session Tests (EMP-AUTH)">
+        <classes>
+            <class name="com.timeflow.tests.EmployeeAuthenticationTest" />
+        </classes>
+    </test>
+
+    <test name="Employee Permissions &amp; Access Control Tests (EMP-PERM)">
+        <classes>
+            <class name="com.timeflow.tests.EmployeePermissionsTest" />
+        </classes>
+    </test>
+
+    <test name="Employee Timesheets &amp; Submission Workflow Tests (EMP-TS, EMP-SYNC, EMP-VIEW, EMP-SUB)">
+        <classes>
+            <class name="com.timeflow.tests.EmployeeTimesheetWorkflowTest" />
+        </classes>
+    </test>
+
+    <test name="Employee Navigation &amp; Dashboard Tests">
+        <classes>
+            <class name="com.timeflow.tests.EmployeeModuleTest" />
+        </classes>
+    </test>
+
+    <test name="Manager Module &amp; Privileges Tests (MGR)">
+        <classes>
+            <class name="com.timeflow.tests.ManagerModuleTest" />
+        </classes>
+    </test>
+
+    <test name="Project Manager Module &amp; Privileges Tests (PM)">
+        <classes>
+            <class name="com.timeflow.tests.PMModuleTest" />
+        </classes>
+    </test>
+
+    <test name="Administrator Module &amp; Configuration Tests (ADM)">
+        <classes>
+            <class name="com.timeflow.tests.AdminModuleTest" />
+        </classes>
+    </test>
+
+    <test name="Test Suite 1: Access Control &amp; Permissions">
+        <classes>
+            <class name="com.timeflow.tests.AccessControlAndPermissionsTest" />
+        </classes>
+    </test>
+</suite>

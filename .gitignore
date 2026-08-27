@@ -1,0 +1,16 @@
+target/
+*.class
+*.log
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+test-output/
+screenshots/
+target/screenshots/
+.DS_Store
+__pycache__/
+*.pyc
+*.zip
