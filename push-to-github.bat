@@ -4,13 +4,13 @@ echo   Pushing Timeflow Automation Framework to GitHub
 echo   Repository: https://github.com/darshanhujband8055/timeflow-selenium-automation
 echo ==========================================================
 echo.
-echo Launching Git push and browser sign-in...
+echo Pushing local changes to remote main branch...
 echo.
 
-git push -u origin main
+git push origin main
 
 echo.
 echo ==========================================================
-echo   Done!
+echo   Push completed successfully!
 echo ==========================================================
 pause
