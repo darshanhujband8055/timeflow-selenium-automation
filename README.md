@@ -268,6 +268,20 @@ git push origin feature/new-test-scenarios
 
 ---
 
+## 🚀 Azure DevOps CI/CD Integration
+
+The repository includes a ready-to-use pipeline definition: [`azure-pipelines.yml`](file:///c:/Users/HP/Desktop/strix/timeflow%20selenium/azure-pipelines.yml).
+
+### Pipeline Capabilities:
+* **Automated Triggers:** Automatically runs on every Pull Request (PR) and push targeting `main`, `master`, `develop`, and `release/*` branches.
+* **Headless Execution:** Runs `./mvnw clean test -Dheadless=true` on Ubuntu/Linux agents.
+* **Test Results Publishing:** Publishes TestNG/Surefire XML results to Azure Test Runs.
+* **Artifact Archiving:**
+  * Publishes HTML reports (`target/surefire-reports/`) as `Timeflow-Surefire-HTML-Reports`.
+  * Automatically captures and publishes failure screenshots (`target/screenshots/`) as `Timeflow-Failure-Screenshots` on any test failure.
+
+---
+
 ## ❓ Troubleshooting & FAQ
 
 #### Q1: Do I need to install `chromedriver` separately?

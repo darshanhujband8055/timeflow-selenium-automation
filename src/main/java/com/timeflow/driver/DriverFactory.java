@@ -38,6 +38,8 @@ public final class DriverFactory {
                 if (headless) {
                     edgeOptions.addArguments("--headless=new");
                     edgeOptions.addArguments("--window-size=1920,1080");
+                    edgeOptions.addArguments("--no-sandbox");
+                    edgeOptions.addArguments("--disable-dev-shm-usage");
                 } else if (ConfigReader.shouldMaximize()) {
                     edgeOptions.addArguments("--start-maximized");
                 }
@@ -54,6 +56,9 @@ public final class DriverFactory {
                 if (headless) {
                     chromeOptions.addArguments("--headless=new");
                     chromeOptions.addArguments("--window-size=1920,1080");
+                    chromeOptions.addArguments("--no-sandbox");
+                    chromeOptions.addArguments("--disable-dev-shm-usage");
+                    chromeOptions.addArguments("--disable-gpu");
                 } else if (ConfigReader.shouldMaximize()) {
                     chromeOptions.addArguments("--start-maximized");
                 }

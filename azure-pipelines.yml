@@ -1,0 +1,116 @@
+# ==============================================================================
+# Azure DevOps CI/CD Pipeline - Timeflow Selenium Test Automation
+# Organization: setoo-ai | Project: Timeflow timesheet
+# Target Application: https://timeflow.setoo.in
+# ==============================================================================
+
+name: $(Date:yyyyMMdd)$(Rev:.r)-timeflow-selenium-regression
+
+# Trigger on commits to primary branches
+trigger:
+  branches:
+    include:
+      - main
+      - master
+      - develop
+      - release/*
+
+# Trigger on Pull Requests targeting primary branches
+pr:
+  branches:
+    include:
+      - main
+      - master
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
+  MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) -Xmx2048m'
+  JAVA_VERSION: '17'
+
+steps:
+# ------------------------------------------------------------------------------
+# Step 1: Set executable permissions on Maven Wrapper & Shell Scripts
+# ------------------------------------------------------------------------------
+- script: |
+    chmod +x mvnw
+    chmod +x run-all-tests.sh
+    echo "Permissions updated for Maven Wrapper and helper scripts."
+  displayName: 'Grant Execution Permissions to Scripts'
+
+# ------------------------------------------------------------------------------
+# Step 2: Set up Java 17 Runtime
+# ------------------------------------------------------------------------------
+- task: JavaToolInstaller@0
+  inputs:
+    versionSpec: '$(JAVA_VERSION)'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'PreInstalled'
+  displayName: 'Set up JDK 17'
+
+# ------------------------------------------------------------------------------
+# Step 3: Cache Maven Dependencies for Faster Pipeline Runs
+# ------------------------------------------------------------------------------
+- task: Cache@2
+  inputs:
+    key: 'maven | "$(Agent.OS)" | pom.xml'
+    restoreKeys: |
+      maven | "$(Agent.OS)"
+    path: $(MAVEN_CACHE_FOLDER)
+  displayName: 'Cache Maven Local Repository (.m2)'
+
+# ------------------------------------------------------------------------------
+# Step 4: Verify Browser & Driver Environment
+# ------------------------------------------------------------------------------
+- script: |
+    google-chrome --version || which google-chrome
+    java -version
+    ./mvnw -version
+  displayName: 'Display Environment Info (Chrome, Java, Maven)'
+
+# ------------------------------------------------------------------------------
+# Step 5: Execute TestNG Regression Suite in Headless Mode
+# ------------------------------------------------------------------------------
+- script: |
+    ./mvnw clean test -Dheadless=true -Dbrowser=chrome
+  displayName: 'Run Timeflow Automated Tests (Headless)'
+  continueOnError: false
+
+# ------------------------------------------------------------------------------
+# Step 6: Publish Test Results to Azure DevOps Test Runs / Boards
+# ------------------------------------------------------------------------------
+- task: PublishTestResults@2
+  condition: always()
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    mergeTestResults: true
+    testRunTitle: 'Timeflow Selenium Regression Suite (Azure CI)'
+    failTaskOnFailedTests: true
+  displayName: 'Publish Surefire / TestNG Test Results'
+
+# ------------------------------------------------------------------------------
+# Step 7: Publish HTML Execution Reports as Pipeline Artifact
+# ------------------------------------------------------------------------------
+- task: PublishPipelineArtifact@1
+  condition: always()
+  inputs:
+    targetPath: '$(System.DefaultWorkingDirectory)/target/surefire-reports'
+    artifact: 'Timeflow-Surefire-HTML-Reports'
+    publishLocation: 'pipeline'
+  displayName: 'Publish HTML Test Execution Reports'
+
+# ------------------------------------------------------------------------------
+# Step 8: Publish Failure Screenshots Artifact (if any test fails)
+# ------------------------------------------------------------------------------
+- task: PublishPipelineArtifact@1
+  condition: failed()
+  inputs:
+    targetPath: '$(System.DefaultWorkingDirectory)/target/screenshots'
+    artifact: 'Timeflow-Failure-Screenshots'
+    publishLocation: 'pipeline'
+  displayName: 'Publish Failure Screenshots Artifact'
