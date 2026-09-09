@@ -54,6 +54,12 @@
         </classes>
     </test>
 
+    <test name="Administrator API &amp; Network Health Tests (ADM-API)">
+        <classes>
+            <class name="com.timeflow.tests.AdminApiHealthTest" />
+        </classes>
+    </test>
+
     <test name="Test Suite 1: Access Control &amp; Permissions">
         <classes>
             <class name="com.timeflow.tests.AccessControlAndPermissionsTest" />
