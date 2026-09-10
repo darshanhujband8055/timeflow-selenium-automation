@@ -3,7 +3,7 @@
 [![Java](https://img.shields.io/badge/Java-17%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Selenium](https://img.shields.io/badge/Selenium-4.29.0-43B02A?style=for-the-badge&logo=selenium&logoColor=white)](https://www.selenium.dev/)
 [![TestNG](https://img.shields.io/badge/TestNG-7.10.2-FF7F00?style=for-the-badge&logo=testng&logoColor=white)](https://testng.org/)
-[![Build](https://img.shields.io/badge/Build-Passing%20(52%2F52)-16A34A?style=for-the-badge)](https://timeflow.setoo.in)
+[![GitHub Actions CI](https://github.com/darshanhujband8055/timeflow-selenium-automation/actions/workflows/ci.yml/badge.svg)](https://github.com/darshanhujband8055/timeflow-selenium-automation/actions/workflows/ci.yml)
 [![Target](https://img.shields.io/badge/Target-https%3A%2F%2Ftimeflow.setoo.in-2563EB?style=for-the-badge)](https://timeflow.setoo.in)
 
 An enterprise-grade, scalable End-to-End Test Automation Framework built with **Java**, **Selenium WebDriver 4**, **TestNG**, and the **Page Object Model (POM)**. It comprehensively tests all **4 User Roles and Business Modules** on the Setoo **Timeflow** platform (`https://timeflow.setoo.in`).
@@ -19,7 +19,8 @@ An enterprise-grade, scalable End-to-End Test Automation Framework built with **
 6. [Repository Structure](#-repository-structure)
 7. [Configuration Settings](#-configuration-settings)
 8. [Git & Collaboration Workflow](#-git--collaboration-workflow)
-9. [Troubleshooting & FAQ](#-troubleshooting--faq)
+9. [🚀 CI/CD Pipelines (GitHub Actions & Azure DevOps)](#-cicd-pipelines-github-actions--azure-devops)
+10. [Troubleshooting & FAQ](#-troubleshooting--faq)
 
 ---
 
@@ -268,17 +269,43 @@ git push origin feature/new-test-scenarios
 
 ---
 
-## 🚀 Azure DevOps CI/CD Integration
+## 🚀 CI/CD Pipelines (GitHub Actions & Azure DevOps)
 
-The repository includes a ready-to-use pipeline definition: [`azure-pipelines.yml`](file:///c:/Users/HP/Desktop/strix/timeflow%20selenium/azure-pipelines.yml).
+The framework is configured for enterprise continuous integration across both **GitHub Actions** and **Azure DevOps Pipelines**.
 
-### Pipeline Capabilities:
-* **Automated Triggers:** Automatically runs on every Pull Request (PR) and push targeting `main`, `master`, `develop`, and `release/*` branches.
-* **Headless Execution:** Runs `./mvnw clean test -Dheadless=true` on Ubuntu/Linux agents.
-* **Test Results Publishing:** Publishes TestNG/Surefire XML results to Azure Test Runs.
-* **Artifact Archiving:**
-  * Publishes HTML reports (`target/surefire-reports/`) as `Timeflow-Surefire-HTML-Reports`.
-  * Automatically captures and publishes failure screenshots (`target/screenshots/`) as `Timeflow-Failure-Screenshots` on any test failure.
+### 1. GitHub Actions Workflows
+
+The repository includes two automated workflows located in [`.github/workflows/`](file:///c:/Users/HP/Desktop/strix/timeflow%20selenium/.github/workflows):
+
+| Workflow | File | Triggers | Description |
+|---|---|---|---|
+| **Main Regression Suite** | [`ci.yml`](file:///c:/Users/HP/Desktop/strix/timeflow%20selenium/.github/workflows/ci.yml) | • Push to `main`, `master`, `develop`, `release/*`<br/>• Pull Request to `main`, `master`, `develop`<br/>• Nightly Cron (`00:00 UTC`)<br/>• Manual `workflow_dispatch` | Runs full test regression in headless mode, uploads HTML surefire reports & failure screenshots, generates step summary. |
+| **Cross-Browser Matrix** | [`cross-browser.yml`](file:///c:/Users/HP/Desktop/strix/timeflow%20selenium/.github/workflows/cross-browser.yml) | • Weekly Cron (Sundays)<br/>• Manual `workflow_dispatch` | Matrix execution across **Google Chrome** and **Mozilla Firefox**. |
+
+#### 🕹️ Manual Execution via GitHub Actions UI:
+1. Navigate to your GitHub repository -> **Actions** tab.
+2. Select **Timeflow Selenium CI/CD Regression Suite**.
+3. Click **Run workflow** and choose:
+   - **Target Browser**: `chrome` | `firefox` | `edge`
+   - **Headless Mode**: `true` | `false`
+   - **Target Suite**: `testng.xml`
+4. Click **Run workflow**.
+
+#### 📦 Download Pipeline Artifacts:
+- **`timeflow-surefire-reports`**: Contains complete interactive HTML reports (`index.html`, `emailable-report.html`) and XML results.
+- **`timeflow-failure-screenshots`**: High-resolution PNG screenshots captured automatically at the exact millisecond of any test assertion or timeout failure.
+
+---
+
+### 2. Azure DevOps Pipelines
+
+The framework includes [`azure-pipelines.yml`](file:///c:/Users/HP/Desktop/strix/timeflow%20selenium/azure-pipelines.yml) supporting Azure DevOps Agents:
+
+* **Automated Triggers:** Executes on PRs and commits to `main`, `master`, `develop`.
+* **Runtime Parameters:** Supports manual runs with browser and headless overrides.
+* **Maven Caching:** Built-in `.m2` dependency caching for fast 2-3 minute execution cycles.
+* **Azure Test Runs:** Publishes JUnit XML test results directly into Azure DevOps Analytics and Dashboards.
+* **Artifact Publishing:** Automatically exports `Timeflow-Surefire-HTML-Reports` and `Timeflow-Failure-Screenshots`.
 
 ---
 

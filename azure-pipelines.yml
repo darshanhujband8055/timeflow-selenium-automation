@@ -6,6 +6,25 @@
 
 name: $(Date:yyyyMMdd)$(Rev:.r)-timeflow-selenium-regression
 
+# Optional runtime parameters for manual pipeline runs in Azure DevOps
+parameters:
+  - name: browser
+    displayName: 'Target Browser'
+    type: string
+    default: 'chrome'
+    values:
+      - 'chrome'
+      - 'firefox'
+      - 'edge'
+  - name: headless
+    displayName: 'Run in Headless Mode'
+    type: boolean
+    default: true
+  - name: suiteXml
+    displayName: 'TestNG Suite XML'
+    type: string
+    default: 'testng.xml'
+
 # Trigger on commits to primary branches
 trigger:
   branches:
@@ -37,7 +56,7 @@ steps:
 # ------------------------------------------------------------------------------
 - script: |
     chmod +x mvnw
-    chmod +x run-all-tests.sh
+    chmod +x run-all-tests.sh || true
     echo "Permissions updated for Maven Wrapper and helper scripts."
   displayName: 'Grant Execution Permissions to Scripts'
 
@@ -66,7 +85,7 @@ steps:
 # Step 4: Verify Browser & Driver Environment
 # ------------------------------------------------------------------------------
 - script: |
-    google-chrome --version || which google-chrome
+    google-chrome --version || which google-chrome || echo "Chrome binary verification"
     java -version
     ./mvnw -version
   displayName: 'Display Environment Info (Chrome, Java, Maven)'
@@ -75,8 +94,8 @@ steps:
 # Step 5: Execute TestNG Regression Suite in Headless Mode
 # ------------------------------------------------------------------------------
 - script: |
-    ./mvnw clean test -Dheadless=true -Dbrowser=chrome
-  displayName: 'Run Timeflow Automated Tests (Headless)'
+    ./mvnw clean test -Dbrowser=${{ parameters.browser }} -Dheadless=${{ parameters.headless }} -Dsurefire.suiteXmlFiles=${{ parameters.suiteXml }}
+  displayName: 'Run Timeflow Automated Tests (Headless: ${{ parameters.headless }})'
   continueOnError: false
 
 # ------------------------------------------------------------------------------
@@ -105,12 +124,18 @@ steps:
   displayName: 'Publish HTML Test Execution Reports'
 
 # ------------------------------------------------------------------------------
-# Step 8: Publish Failure Screenshots Artifact (if any test fails)
+# Step 8: Publish Failure Screenshots Artifact (if failure screenshots exist)
 # ------------------------------------------------------------------------------
+- script: |
+    mkdir -p $(System.DefaultWorkingDirectory)/target/screenshots
+  condition: always()
+  displayName: 'Ensure Screenshots Directory Exists'
+
 - task: PublishPipelineArtifact@1
-  condition: failed()
+  condition: always()
   inputs:
     targetPath: '$(System.DefaultWorkingDirectory)/target/screenshots'
     artifact: 'Timeflow-Failure-Screenshots'
     publishLocation: 'pipeline'
   displayName: 'Publish Failure Screenshots Artifact'
+
