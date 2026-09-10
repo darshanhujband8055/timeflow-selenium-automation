@@ -1,0 +1,64 @@
+name: Timeflow Cross-Browser Matrix CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      headless:
+        description: 'Run in Headless Mode'
+        required: true
+        default: true
+        type: boolean
+  schedule:
+    # Run weekly cross-browser matrix on Sunday midnight UTC
+    - cron: '0 0 * * 0'
+
+jobs:
+  matrix-test:
+    name: Test Matrix (${{ matrix.browser }} on ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        browser: [chrome, firefox]
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Grant Execute Permission to Scripts
+        run: |
+          chmod +x mvnw
+          chmod +x run-all-tests.sh || true
+
+      - name: Setup Firefox (if applicable)
+        if: matrix.browser == 'firefox'
+        uses: browser-actions/setup-firefox@v1
+
+      - name: Run Tests (${{ matrix.browser }})
+        id: run_matrix_tests
+        run: |
+          ./mvnw clean test -Dbrowser=${{ matrix.browser }} -Dheadless=${{ inputs.headless != '' && inputs.headless || 'true' }}
+        continue-on-error: true
+
+      - name: Upload Test Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reports-${{ matrix.browser }}
+          path: |
+            target/surefire-reports/**
+            target/screenshots/**
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Enforce Job Outcome
+        if: steps.run_matrix_tests.outcome != 'success'
+        run: exit 1
